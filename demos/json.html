@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8' />
+<link href='../fullcalendar.min.css' rel='stylesheet' />
+<link href='../fullcalendar.print.min.css' rel='stylesheet' media='print' />
+<script src='../lib/moment.min.js'></script>
+<script src='../lib/jquery.min.js'></script>
+<script src='../fullcalendar.min.js'></script>
+<script src='../locale-all.js'></script>
+
+
+<link href='../lib/qtip/jquery.qtip.min.css' rel='stylesheet' />
+
+<script src='../lib/qtip/jquery.qtip.min.js'></script>
+
+<script>
+
+	$(document).ready(function() {
+
+		var tooltip = $('#calendar').qtip({
+			id: 'calendar',
+			prerender: true,
+			content: {
+				text: ' ',
+				title: {
+					button: true
+				}
+			},
+			position: {
+				 my: 'bottom center',
+				 at: 'top center',
+	             target: 'mouse', 
+	             adjust: {
+	                mouse: false,
+					scroll: false
+	             } 
+	         },
+			show: false,
+			hide: false,
+			style: 'qtip-light'
+		}).qtip('api');
+
+	
+		$('#calendar').fullCalendar({
+			header: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'month,agendaDay,listWeek'
+			},
+			locale: 'fr',
+			editable: false,
+			navLinks: true, // can click day/week names to navigate views
+			eventLimit: true, // allow "more" link when too many events
+			events: {
+				url: '../db.php',
+				error: function() {
+					$('#script-warning').show();
+				}
+			},
+			loading: function(bool) {
+				$('#loading').toggle(bool);
+			},
+			eventClick: function(data, event, view) {
+				var content;
+
+				if (data.role ==='admin') {
+					content = '<h3>'+data.title+'</h3>' ;
+					content += '<p><b>Debut:</b><input type="text" value="'+ moment(data.start).calendar() +'"><br />';
+					content += '<p><b>Fin:</b> '+ moment(data.start).calendar() +'</p>';
+					if (data.rappel ) {
+						content += '<p><b>Rappel:</b> '+ data.rappel +'</p>';
+					}
+					if (data.user ) {
+						content += '<p><b>ID:</b> '+ data.user +'</p>';
+					}
+
+				}else {
+					content = '<h3>'+data.title+'</h3>' ;
+					content += '<p><b>Debut:</b> '+ moment(data.start).calendar() +'<br />';
+					content += '<p><b>Fin:</b> '+ moment(data.start).calendar() +'</p>';
+					if (data.rappel ) {
+						content += '<p><b>Rappel:</b> '+ data.rappel +'</p>';
+					}
+					if (data.user ) {
+						content += '<p><b>ID:</b> '+ data.user +'</p>';
+					}
+				}
+				    
+				tooltip.set({
+					'content.text': content
+				})
+				.reposition(event).show(event);
+			},
+			dayClick: function() { tooltip.hide() },
+			eventResizeStart: function() { tooltip.hide() },
+			eventDragStart: function() { tooltip.hide() },
+			viewDisplay: function() { tooltip.hide() },
+		});
+		
+	});
+
+</script>
+<style>
+
+	body {
+		margin: 0;
+		padding: 0;
+		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+		font-size: 14px;
+	}
+
+	#calendar {
+		max-width: 900px;
+		margin: 40px auto;
+		padding: 0 10px;
+	}
+
+</style>
+</head>
+<body>
+
+	
+
+	<div id='calendar'></div>
+
+</body>
+</html>
